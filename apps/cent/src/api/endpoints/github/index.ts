@@ -31,6 +31,25 @@ const manuallyLogin = async ({ modal }: { modal: Modal }) => {
     location.reload();
 };
 
+const giteaManuallyLogin = async ({ modal }: { modal: Modal }) => {
+    const serverUrl = await modal.prompt({
+        title: t("please-enter-gitea-server-url"),
+        input: { type: "text", placeholder: "https://git.example.com" },
+    });
+    if (!serverUrl) {
+        return;
+    }
+    const token = await modal.prompt({
+        title: t("please-enter-your-gitea-token"),
+        input: { type: "text" },
+    });
+    if (!token) {
+        return;
+    }
+    LoginAPI.manuallySetToken(token as string, serverUrl as string);
+    location.reload();
+};
+
 export const GithubEndpoint: SyncEndpointFactory = {
     type: "github",
     name: "Github",
@@ -38,6 +57,7 @@ export const GithubEndpoint: SyncEndpointFactory = {
     manuallyLogin,
     init: ({ modal }) => {
         LoginAPI.afterLogin();
+        const serverUrl = LoginAPI.getServerUrl();
         const repo = createTidal<Bill>({
             storageFactory: (name) => new BillIndexedDBStorage(`book-${name}`),
             entryName: config.entryName,
@@ -46,6 +66,7 @@ export const GithubEndpoint: SyncEndpointFactory = {
                     auth: LoginAPI.getToken,
                     entryName: config.entryName,
                     repoPrefix: config.repoPrefix,
+                    serverUrl,
                 }),
         });
         const zenRepo = createTidal<ZenPost>({
@@ -57,6 +78,7 @@ export const GithubEndpoint: SyncEndpointFactory = {
                     auth: LoginAPI.getToken,
                     entryName: ZEN_ENTRY_NAME,
                     repoPrefix: config.repoPrefix,
+                    serverUrl,
                 }),
         });
 
@@ -67,15 +89,29 @@ export const GithubEndpoint: SyncEndpointFactory = {
 
         const inviteForBook = async (bookId: string) => {
             await modal.prompt({ title: t("invite-tip") });
-            window.open(
-                `https://github.com/${bookId}/settings/access`,
-                "_blank",
-            );
+            if (serverUrl) {
+                window.open(
+                    `${serverUrl.replace(/\/$/, "")}/${bookId}/settings/collaboration`,
+                    "_blank",
+                );
+            } else {
+                window.open(
+                    `https://github.com/${bookId}/settings/access`,
+                    "_blank",
+                );
+            }
         };
 
         const deleteBook = async (bookId: string) => {
             await modal.prompt({ title: t("delete-book-tip") });
-            window.open(`https://github.com/${bookId}/settings`, "_blank");
+            if (serverUrl) {
+                window.open(
+                    `${serverUrl.replace(/\/$/, "")}/${bookId}/settings`,
+                    "_blank",
+                );
+            } else {
+                window.open(`https://github.com/${bookId}/settings`, "_blank");
+            }
             return Promise.reject();
         };
 
@@ -133,3 +169,5 @@ export const GithubEndpoint: SyncEndpointFactory = {
         };
     },
 };
+
+export { giteaManuallyLogin };

@@ -2,7 +2,7 @@ import { wrap } from "comlink";
 import modal from "@/components/modal";
 import { EmptyEndpoint } from "../endpoints/empty";
 import { GiteeEndpoint } from "../endpoints/gitee";
-import { GithubEndpoint } from "../endpoints/github";
+import { giteaManuallyLogin, GithubEndpoint } from "../endpoints/github";
 import { OfflineEndpoint } from "../endpoints/offline";
 import { S3Endpoint } from "../endpoints/s3";
 import { WebDAVEndpoint } from "../endpoints/web-dav";
@@ -11,6 +11,7 @@ import DeferredWorker from "./worker?worker";
 
 const APIS = {
     github: GithubEndpoint,
+    gitea: GithubEndpoint,
     offline: OfflineEndpoint,
     webdav: WebDAVEndpoint,
     gitee: GiteeEndpoint,
@@ -35,6 +36,9 @@ export const StorageAPI = {
         if (type === "gitee") {
             return GiteeEndpoint.login({ modal });
         }
+        if (type === "gitea") {
+            return giteaManuallyLogin({ modal });
+        }
         if (type === "offline") {
             return OfflineEndpoint.login({ modal });
         }
@@ -51,6 +55,9 @@ export const StorageAPI = {
         }
         if (type === "gitee") {
             return GiteeEndpoint.manuallyLogin?.({ modal });
+        }
+        if (type === "gitea") {
+            return giteaManuallyLogin({ modal });
         }
     },
 };

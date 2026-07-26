@@ -111,6 +111,8 @@
   "or-use-an-exist-token": "或者使用现有的token",
   "token-expired-please-re-login-to-github-from-setting-page": "Token已过期，请到设置页面重新登录",
   "please-enter-your-github-token": "请输入你的Github Token",
+  "please-enter-gitea-server-url": "请输入你的 Gitea 服务器地址",
+  "please-enter-your-gitea-token": "请输入你的 Gitea Token",
   "stat-view-custom": "自定义",
   "stat-view-monthly": "月",
   "stat-view-weekly": "周",

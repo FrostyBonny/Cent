@@ -109,6 +109,8 @@
   "or-use-an-exist-token": "or use an exist token",
   "token-expired-please-re-login-to-github-from-setting-page": "Token expired, Please re-login to Github from setting page.",
   "please-enter-your-github-token": "Please enter your github token",
+  "please-enter-gitea-server-url": "Please enter your Gitea server URL",
+  "please-enter-your-gitea-token": "Please enter your Gitea token",
   "stat-view-weekly": "Weekly",
   "stat-view-monthly": "Monthly",
   "stat-view-yearly": "Yearly",

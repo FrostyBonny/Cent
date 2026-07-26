@@ -3,6 +3,7 @@ import { asyncOnce } from "@/utils/async";
 // 从环境变量读取 LOGIN_API_HOST
 const LOGIN_API_HOST = import.meta.env.VITE_LOGIN_API_HOST;
 const LOCAL_TOKEN_KEY = "github_user_token";
+const LOCAL_SERVER_URL_KEY = "github_server_url";
 
 const { promise: loginFinished, resolve: resolveLoginFinished } =
     Promise.withResolvers<void>();
@@ -109,14 +110,23 @@ export const createLoginAPI = () => {
 
     const getToken = asyncOnce(_getToken);
 
-    const manuallySetToken = (token: string) => {
-        localStorage.setItem("SYNC_ENDPOINT", "github");
+    const manuallySetToken = (token: string, serverUrl?: string) => {
+        localStorage.setItem("SYNC_ENDPOINT", serverUrl ? "gitea" : "github");
         localStorage.setItem(
             LOCAL_TOKEN_KEY,
             JSON.stringify({
                 accessToken: token,
             }),
         );
+        if (serverUrl) {
+            localStorage.setItem(LOCAL_SERVER_URL_KEY, serverUrl);
+        } else {
+            localStorage.removeItem(LOCAL_SERVER_URL_KEY);
+        }
+    };
+
+    const getServerUrl = () => {
+        return localStorage.getItem(LOCAL_SERVER_URL_KEY) ?? undefined;
     };
 
     const getLocalToken = () => {
@@ -133,6 +143,7 @@ export const createLoginAPI = () => {
         manuallySetToken,
         getLocalToken,
         afterLogin,
+        getServerUrl,
     };
 };
 

@@ -73,6 +73,23 @@ export default function Login() {
                                         {t("or-use-an-exist-token")}
                                     </button>
                                 </div>
+                                {/* Gitea */}
+                                <div>
+                                    <button
+                                        type="button"
+                                        className={`${secondaryButtonStyle}`}
+                                        onClick={async () => {
+                                            const StorageAPI =
+                                                await loadStorageAPI();
+                                            StorageAPI.loginWith("gitea");
+                                        }}
+                                    >
+                                        <i className="icon-[mdi--git]"></i>
+                                        <div className="flex-1">
+                                            Gitea
+                                        </div>
+                                    </button>
+                                </div>
                                 {/* Gitee */}
                                 <div className="flex flex-col gap-1">
                                     <button
