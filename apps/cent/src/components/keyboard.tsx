@@ -493,7 +493,7 @@ export const CalculatorKeyboard = ({
     const t = useIntl();
     const { handleButtonClick, Layout } = useContext(CalculatorContext)!;
     return (
-        <div className={cn("grid grid-cols-8 gap-2", className)}>
+        <div className={cn("grid grid-cols-8 gap-1 sm:gap-2", className)}>
             {Layout.map((row) => (
                 <Button
                     variant="ghost"
@@ -505,7 +505,7 @@ export const CalculatorKeyboard = ({
                     }}
                     className={cn(
                         (row.cols ?? 1) > 1 && "col-span-2",
-                        "h-full text-lg font-semibold bg-background/10 active:bg-background/50 transition-all py-1",
+                        "h-full text-base sm:text-lg font-semibold bg-background/10 active:bg-background/50 transition-all py-0.5 sm:py-1",
                         row.label === "c" && "bg-destructive/60",
                     )}
                 >

@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
 
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { toast } from "sonner";
 import useCategory from "@/hooks/use-category";
 import { useCreators } from "@/hooks/use-creator";
@@ -17,14 +16,6 @@ import { showBillEditor } from "../bill-editor";
 import CategoryIcon from "../category/icon";
 import SmartImage from "../image";
 import Money from "../money";
-import { Button } from "../ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-} from "../ui/dropdown-menu";
 
 export default function BillInfo({
     edit,
@@ -143,7 +134,7 @@ export default function BillInfo({
                             </div>
                         </div>
                         <div
-                            className={`text-2xl font-bold flex overflow-x-auto ${
+                            className={`text-3xl sm:text-2xl font-bold flex overflow-x-auto ${
                                 edit.type === "expense"
                                     ? "text-semantic-expense"
                                     : "text-semantic-income"
@@ -224,82 +215,74 @@ export default function BillInfo({
                 </div>
 
                 {/* footer */}
-                <div className="footer flex justify-between items-center">
-                    <div className="flex">
+                <div className="footer flex justify-between items-center gap-1">
+                    <div className="flex gap-1">
                         {canEdit && (
-                            <MoreAction
-                                onDelete={toDelete}
-                                onDuplicate={toDuplicate}
-                                onSplit={toSplit}
-                            />
+                            <>
+                                <button
+                                    type="button"
+                                    className="buttoned p-2 sm:px-2 sm:py-1 rounded-md cursor-pointer flex items-center gap-1 text-sm"
+                                    onClick={toDuplicate}
+                                    title={t("duplicate")}
+                                >
+                                    <i className="icon-[mdi--content-copy] text-lg sm:text-base text-blue-500"></i>
+                                    <span className="hidden sm:inline">
+                                        {t("duplicate")}
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    className="buttoned p-2 sm:px-2 sm:py-1 rounded-md cursor-pointer flex items-center gap-1 text-sm"
+                                    onClick={toSplit}
+                                    title={t("split-action")}
+                                >
+                                    <i className="icon-[mdi--format-page-split] text-lg sm:text-base text-purple-500"></i>
+                                    <span className="hidden sm:inline">
+                                        {t("split-action")}
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    className="buttoned p-2 sm:px-2 sm:py-1 rounded-md cursor-pointer flex items-center gap-1 text-sm"
+                                    onClick={toDelete}
+                                    title={t("delete")}
+                                >
+                                    <i className="icon-[mdi--trash-can-outline] text-lg sm:text-base text-red-500"></i>
+                                    <span className="hidden sm:inline text-red-600">
+                                        {t("delete")}
+                                    </span>
+                                </button>
+                            </>
                         )}
                     </div>
-                    <div className="flex">
+                    <div className="flex gap-1">
                         <button
                             type="button"
-                            className="buttoned px-2 rounded-md cursor-pointer"
+                            className="buttoned p-2 sm:px-2 sm:py-1 rounded-md cursor-pointer flex items-center gap-1 text-sm"
                             onClick={toClose}
+                            title={t("cancel")}
                         >
-                            {t("cancel")}
+                            <i className="icon-[mdi--close] text-lg sm:text-base text-muted-foreground"></i>
+                            <span className="hidden sm:inline">
+                                {t("cancel")}
+                            </span>
                         </button>
                         {canEdit && (
                             <button
                                 type="button"
-                                className="buttoned ml-2 px-2 rounded-md font-semibold cursor-pointer"
+                                className="buttoned p-2 sm:px-2 sm:py-1 rounded-md font-semibold cursor-pointer flex items-center gap-1 text-sm"
                                 onClick={toEdit}
+                                title={t("edit")}
                             >
-                                {t("edit")}
+                                <i className="icon-[mdi--pencil] text-lg sm:text-base text-primary"></i>
+                                <span className="hidden sm:inline">
+                                    {t("edit")}
+                                </span>
                             </button>
                         )}
                     </div>
                 </div>
             </div>
         </div>
-    );
-}
-
-function MoreAction({
-    onDelete,
-    onSplit,
-    onDuplicate,
-}: {
-    onDelete?: () => void;
-    onSplit?: () => void;
-    onDuplicate?: () => void;
-}) {
-    const t = useIntl();
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button
-                    variant={"ghost"}
-                    className="text-base font-normal cursor-pointer"
-                >
-                    {t("more-actions")}
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-                <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={onDuplicate}>
-                        <i className="icon-[mdi--content-copy]"></i>
-                        {t("duplicate")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={onSplit}>
-                        <i className="icon-[mdi--format-page-split]"></i>
-                        {t("split-action")}
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={onDelete}
-                    >
-                        <i className="icon-[mdi--trash-can-outline]"></i>
-                        {t("delete")}
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
     );
 }

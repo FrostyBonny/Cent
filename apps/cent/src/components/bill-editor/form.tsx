@@ -495,8 +495,8 @@ export default function EditorForm({
                 {/* keyboard area */}
                 <div
                     className={cn(
-                        "h-[calc(480px+160px*(var(--bekh,0.5)-0.5))] sm:h-[calc(380px+160px*(var(--bekh,0.5)-0.5))] min-h-[264px] max-h-[calc(100%-124px)]",
-                        "keyboard-field relative flex gap-2 flex-col justify-start bg-stone-900 sm:rounded-b-md text-[white] p-2 pb-[max(var(--safe-area-inset-bottom),8px)]",
+                        "h-[calc(360px+160px*(var(--bekh,0.5)-0.5))] sm:h-[calc(380px+160px*(var(--bekh,0.5)-0.5))] min-h-[240px] max-h-[calc(100%-124px)]",
+                        "keyboard-field relative flex gap-1.5 flex-col justify-start bg-stone-900 sm:rounded-b-md text-[white] p-2 pb-[max(var(--safe-area-inset-bottom),8px)]",
                     )}
                 >
                     <ResizeHandle />
@@ -642,7 +642,7 @@ export default function EditorForm({
 
                     <button
                         type="button"
-                        className="flex h-[80px] min-h-[48px] justify-center items-center bg-green-700 rounded-lg font-bold text-lg cursor-pointer"
+                        className="flex h-14 sm:h-20 min-h-[40px] justify-center items-center bg-green-700 rounded-lg font-bold text-lg cursor-pointer"
                         onClick={toConfirm}
                     >
                         <i className="icon-[mdi--check] icon-md"></i>

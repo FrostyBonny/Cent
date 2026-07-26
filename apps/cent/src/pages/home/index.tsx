@@ -230,9 +230,11 @@ export default function Page() {
                         useLedgerStore.getState().initCurrentBook();
                     }}
                 >
-                    <div className={cn("opacity-0", loading && "opacity-100")}>
+                    {loading ? (
                         <Loading className="[&_i]:size-[18px]" />
-                    </div>
+                    ) : (
+                        <i className="icon-[mdi--refresh] text-muted-foreground text-[18px]" />
+                    )}
                 </button>
                 <div className="flex items-center gap-2">
                     {budgetCount > 1 && (
