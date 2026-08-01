@@ -41,6 +41,8 @@
   "total": "共计",
   "creator": "创建者",
   "time": "时间",
+  "date": "日期",
+  "now": "现在",
   "delete": "删除",
   "cancel": "取消",
   "edit": "编辑",

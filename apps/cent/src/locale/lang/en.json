@@ -42,6 +42,8 @@
   "total": "total",
   "creator": "creator",
   "time": "time",
+  "date": "Date",
+  "now": "Now",
   "delete": "Delete",
   "edit": "edit",
   "cancel": "Cancel",
