@@ -19,6 +19,7 @@ import {
     showBillFilterView,
 } from "@/components/bill-filter";
 import { showBillInfo } from "@/components/bill-info";
+import { isCancelError } from "@/components/confirm/state";
 import BillItem from "@/components/ledger/item";
 import { showSortableList } from "@/components/sortable";
 import { AnalysisCloud } from "@/components/stat/analysic-cloud";
@@ -403,7 +404,11 @@ export default function Page() {
                             bill={dataSources.highestExpenseBill}
                             showTime
                             onClick={() =>
-                                showBillInfo(dataSources.highestExpenseBill!)
+                                showBillInfo(dataSources.highestExpenseBill!).catch(
+                                    (err) => {
+                                        if (!isCancelError(err)) throw err;
+                                    },
+                                )
                             }
                         />
                     </div>
@@ -419,7 +424,11 @@ export default function Page() {
                             bill={dataSources.highestIncomeBill}
                             showTime
                             onClick={() =>
-                                showBillInfo(dataSources.highestIncomeBill!)
+                                showBillInfo(dataSources.highestIncomeBill!).catch(
+                                    (err) => {
+                                        if (!isCancelError(err)) throw err;
+                                    },
+                                )
                             }
                         />
                     </div>

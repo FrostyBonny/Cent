@@ -15,6 +15,7 @@ import type { Bill } from "@/ledger/type";
 import { cn } from "@/utils";
 import { denseDate } from "@/utils/time";
 import { showBillInfo } from "../bill-info";
+import { isCancelError } from "../confirm/state";
 import { Checkbox } from "../ui/checkbox";
 import BillItem from "./item";
 import "./style.scss";
@@ -234,8 +235,18 @@ const Ledger = forwardRef<LedgerRef, LedgerProps>(
                                             enableSelect
                                                 ? undefined
                                                 : async () => {
-                                                      await showBillInfo(bill);
-                                                      afterEdit?.(bill);
+                                                      try {
+                                                          await showBillInfo(
+                                                              bill,
+                                                          );
+                                                          afterEdit?.(bill);
+                                                      } catch (err) {
+                                                          if (
+                                                              !isCancelError(err)
+                                                          ) {
+                                                              throw err;
+                                                          }
+                                                      }
                                                   }
                                         }
                                         showTime={showTime}
