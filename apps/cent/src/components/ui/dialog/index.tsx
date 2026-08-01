@@ -9,7 +9,7 @@ import {
     usePresence,
 } from "motion/react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useIsDesktop } from "@/hooks/use-media-query";
 import { cn } from "@/utils";
 import { registerSlideGesture } from "./gesture";
@@ -419,7 +419,9 @@ function DialogContent({
     const initialPlayed = useRef(false);
     const exitPlayed = useRef(false);
 
-    useEffect(() => {
+    // 必须用 useLayoutEffect：入场动画的初始状态（屏幕外）要在浏览器首次绘制之前生效，
+    // 否则第一次绘制会以最终位置完整显示一帧，造成"界面闪一下"后再滑入的效果
+    useLayoutEffect(() => {
         if (isPresent) {
             if (initialPlayed.current) {
                 return;
