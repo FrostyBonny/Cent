@@ -324,7 +324,21 @@ export const CalculatorRoot = ({
 
     useEffect(() => {
         if (input) {
+            // 焦点在文本输入类元素(如分类名、备注输入框)时不拦截按键,
+            // 否则 Backspace 等编辑键会被吞掉,导致输入框只能加字不能删字
+            const isTypingTarget = (event: KeyboardEvent) => {
+                const target = event.target as HTMLElement | null;
+                return (
+                    !!target &&
+                    (target.tagName === "INPUT" ||
+                        target.tagName === "TEXTAREA" ||
+                        target.isContentEditable)
+                );
+            };
             const onPress = (event: KeyboardEvent) => {
+                if (isTypingTarget(event)) {
+                    return;
+                }
                 const key = event.key;
                 if (Layout.every((k) => k.label !== key)) {
                     return;
@@ -332,6 +346,9 @@ export const CalculatorRoot = ({
                 handleButtonClick(key);
             };
             const onKeydown = (event: KeyboardEvent) => {
+                if (isTypingTarget(event)) {
+                    return;
+                }
                 const key = event.key;
                 if (key === "Backspace") {
                     event.preventDefault();
