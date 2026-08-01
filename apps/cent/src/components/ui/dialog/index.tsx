@@ -18,24 +18,24 @@ import { useControlledState } from "./use-controlled-state";
 
 // component/DialogAnimation.jsx
 
-// 1. 定义动画变体
+// 1. 定义动画变体。背景变暗由 DialogContent 内的 dialog-dim 遮罩层用 opacity
+//    动画实现（opacity 是 GPU 可合成属性）—— 不再使用 150vmax boxShadow：
+//    box-shadow 动画在主线程逐帧重绘整个巨阴影区域，Android Chrome 上
+//    叠加多个全屏阴影层时会出现"闪一下底层页面"的伪影。
 const animationVariants = {
     // --- 桌面动画 (从下到上) ---
     desktop: {
         // 隐藏状态 (未打开)
         initial: {
             transform: "translateY(100vh)",
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0)",
         },
         // 动画状态 (打开时)
         animate: {
             transform: "translateY(0px)",
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0.5)",
         },
         // 退出状态 (关闭时)
         exit: {
             transform: "translateY(100vh)",
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0)",
         }, // 保持 y 轴运动
     },
 
@@ -44,17 +44,14 @@ const animationVariants = {
         // 隐藏状态 (未打开)
         initial: {
             transform: `translateX(${window.innerWidth}px)`,
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0)",
         },
         // 动画状态 (打开时)
         animate: {
             transform: `translateX(0px)`,
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0.5)",
         },
         // 退出状态 (关闭时)
         exit: {
             transform: `translateX(${window.innerWidth}px)`,
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0)",
         }, // 保持 x 轴运动
     },
     fade: {
@@ -62,19 +59,16 @@ const animationVariants = {
         initial: {
             opacity: "0",
             transform: `scale(0.9)`,
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0)",
         },
         // 动画状态 (打开时)
         animate: {
             opacity: "1",
             transform: `scale(1)`,
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0.5)",
         },
         // 退出状态 (关闭时)
         exit: {
             opacity: "0",
             transform: `scale(0.9)`,
-            boxShadow: "0 0 0 150vmax rgba(0, 0, 0, 0)",
         },
     },
 };
@@ -264,6 +258,7 @@ function DialogContent({
 }: DialogContentProps) {
     const isDesktop = useIsDesktop();
     const contentRef = useRef<HTMLDivElement>(null);
+    const dimRef = useRef<HTMLDivElement>(null);
     const [isPresent, safeToRemove] = usePresence(); // 关键：获取是否正在被销毁
 
     // 动态选择变体
@@ -358,7 +353,7 @@ function DialogContent({
                 const offsetX = Math.max(0, Math.min(fullWidth, offset.x));
                 root.style.transform = `translate3d(${offsetX}px,0,0)`;
                 const p = offsetX / fullWidth;
-                root.style.boxShadow = `0 0 0 150vmax rgba(0, 0, 0, ${0.5 - 0.5 * p})`;
+                dimRef.current!.style.opacity = `${0.5 - 0.5 * p}`;
             },
             onEnd: (offset, { fullWidth }) => {
                 const offsetX = Math.max(0, Math.min(fullWidth, offset.x));
@@ -369,13 +364,22 @@ function DialogContent({
                     (1 - swProgress) * TRANSITION_DURATION,
                 );
                 if (swProgress >= 0.5 || acc > 0.5) {
+                    const currentDim = 0.5 - 0.5 * swProgress;
                     const ani1 = root.animate(
                         [
                             {
                                 transform: "translate3d(100%,0,0)",
-                                boxShadow: "0 0 0 150vmax rgba(0,0,0,0)",
                             },
                         ],
+                        {
+                            duration: leftTime,
+                            iterations: 1,
+                            fill: "forwards",
+                            easing: "ease-out",
+                        },
+                    );
+                    dimRef.current?.animate(
+                        [{ opacity: currentDim }, { opacity: 0 }],
                         {
                             duration: leftTime,
                             iterations: 1,
@@ -392,13 +396,22 @@ function DialogContent({
                     });
                 } else {
                     // cancel back
+                    const currentDim = 0.5 - 0.5 * swProgress;
                     const ani1 = root.animate(
                         [
                             {
                                 transform: "translate3d(0,0,0)",
-                                boxShadow: "0 0 0 150vmax rgba(0,0,0,0.5)",
                             },
                         ],
+                        {
+                            duration: leftTime,
+                            iterations: 1,
+                            fill: "forwards",
+                            easing: TRANSITION_EASING,
+                        },
+                    );
+                    dimRef.current?.animate(
+                        [{ opacity: currentDim }, { opacity: 0.5 }],
                         {
                             duration: leftTime,
                             iterations: 1,
@@ -443,6 +456,16 @@ function DialogContent({
                     ani.commitStyles();
                     ani.cancel();
                 });
+            // 遮罩同步淡入（0 → 0.5），与滑入动画同速
+            dimRef.current
+                ?.animate([{ opacity: 0 }, { opacity: 0.5 }], {
+                    ...transitionNative,
+                    fill: "forwards",
+                })
+                .finished.then((ani) => {
+                    ani.commitStyles();
+                    ani.cancel();
+                });
         } else {
             if (exitPlayed.current) {
                 return;
@@ -453,12 +476,18 @@ function DialogContent({
             }
             exitPlayed.current = true;
             initialPlayed.current = false;
-            // 执行“退出”动画
+            // 执行“退出”动画（内容滑出 + 遮罩淡出并行）
             const exitAnimation = async () => {
-                await contentRef.current?.animate(
-                    [currentVariant.animate, currentVariant.exit],
-                    transitionNative,
-                ).finished;
+                await Promise.all([
+                    contentRef.current?.animate(
+                        [currentVariant.animate, currentVariant.exit],
+                        transitionNative,
+                    ).finished,
+                    dimRef.current?.animate(
+                        [{ opacity: 0.5 }, { opacity: 0 }],
+                        transitionNative,
+                    ).finished,
+                ]);
                 safeToRemove?.(); // 动画结束后，手动通知 React 真正销毁 DOM
             };
             exitAnimation();
@@ -466,22 +495,32 @@ function DialogContent({
     }, [isPresent, currentVariant, transitionNative, safeToRemove]);
 
     return (
-        <DialogPrimitive.Content
-            asChild
-            forceMount
-            onOpenAutoFocus={onOpenAutoFocus}
-            onCloseAutoFocus={onCloseAutoFocus}
-            onEscapeKeyDown={onEscapeKeyDown}
-            onPointerDownOutside={onPointerDownOutside}
-            onInteractOutside={onInteractOutside}
-        >
-            <motion.div
-                ref={contentRef} // 绑定 ref 以获取 DOM 边界
-                key="dialog-content"
-                data-slot="dialog-content"
-                {...props}
+        <>
+            {/* 背景变暗遮罩：opacity 动画（GPU 可合成），替代原内容上的
+                150vmax boxShadow，避免 Android Chrome 上巨阴影重绘闪屏 */}
+            <div
+                ref={dimRef}
+                data-slot="dialog-dim"
+                className="fixed inset-0 bg-black/50 pointer-events-none"
+                style={{ opacity: 0 }}
             />
-        </DialogPrimitive.Content>
+            <DialogPrimitive.Content
+                asChild
+                forceMount
+                onOpenAutoFocus={onOpenAutoFocus}
+                onCloseAutoFocus={onCloseAutoFocus}
+                onEscapeKeyDown={onEscapeKeyDown}
+                onPointerDownOutside={onPointerDownOutside}
+                onInteractOutside={onInteractOutside}
+            >
+                <motion.div
+                    ref={contentRef} // 绑定 ref 以获取 DOM 边界
+                    key="dialog-content"
+                    data-slot="dialog-content"
+                    {...props}
+                />
+            </DialogPrimitive.Content>
+        </>
     );
 }
 
