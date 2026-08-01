@@ -46,11 +46,6 @@ export default defineConfig(({ mode }) => {
             filename: "sw.ts",
             registerType: "autoUpdate",
             injectRegister: "auto",
-            workbox: {
-                // 绕过 HTTP 缓存（GitHub Pages 对 sw.js 有 10 分钟缓存），
-                // 每次导航都检查最新 sw.js，让新版本更快接管
-                updateViaCache: "none",
-            },
             includeAssets: ["favicon.ico", "apple-touch-icon.png"],
             manifest: {
                 name: "Cent - 日计",
