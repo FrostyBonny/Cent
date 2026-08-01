@@ -31,9 +31,11 @@ export default function Version() {
 
 const CURRENT_GIT_HASH: string = abbreviatedSha;
 
-// GitHub API 地址：获取特定仓库特定分支的最新Commit
+// GitHub API 地址：获取指定仓库 main 分支的最新 Commit。
+// 仓库通过 VITE_GITHUB_REPO 配置（fork 部署时改成自己的仓库），默认上游 glink25/cent。
+const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || "glink25/cent";
 const GITHUB_API_URL =
-    "https://api.github.com/repos/glink25/cent/branches/main";
+    `https://api.github.com/repos/${GITHUB_REPO}/branches/main`;
 
 // --- 组件定义 ---
 
@@ -92,9 +94,21 @@ const GitVersionChecker: React.FC = () => {
                 <span className="font-semibold text-gray-600">
                     Current:
                     <span
-                        className={`ml-1 text-xs font-normal  ${isLatest ? "text-green-700" : "text-red-700"}`}
+                        className={`ml-1 text-xs font-normal ${
+                            latestHash
+                                ? isLatest
+                                    ? "text-green-700"
+                                    : "text-red-700"
+                                : "text-gray-400"
+                        }`}
                     >
-                        {isLatest ? "(newest)" : " (outdated)"}
+                        {isLoading
+                            ? ""
+                            : latestHash
+                              ? isLatest
+                                  ? "(newest)"
+                                  : "(outdated)"
+                              : "(unknown)"}
                     </span>
                 </span>
                 <code className="text-gray-900">

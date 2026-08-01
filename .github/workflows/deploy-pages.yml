@@ -35,6 +35,9 @@ jobs:
 
       - name: Build
         run: pnpm --filter cent exec vite build --base=./
+        env:
+          # 版本检查器对比的仓库（fork 部署时改为自己的仓库）
+          VITE_GITHUB_REPO: FrostyBonny/Cent
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
